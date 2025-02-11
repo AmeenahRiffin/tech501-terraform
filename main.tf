@@ -19,12 +19,48 @@ resource "aws_instance" "app_instance" {
     tags = {
         Name = "tech501-ameenah-terraform-app"
     }
+
+# use the security group
+    vpc_security_group_ids = [aws_security_group.tech501-ameenah-tf-allow-port-22-3000-80.id]
+
+# which key to use
+    key_name = "ameenah-aws-key"
 }
+
+## Adds the security group as per the requirements i'm naming this appropriately,
+resource "aws_security_group" "tech501-ameenah-tf-allow-port-22-3000-80" {
+    name = "tech501-ameenah-tf-allow-port-22-3000-80"
+    description = "Security group allowing ports 22, 3000, and 80"
+
+# allow port 22 from localhost
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["127.0.0.1/32"] # This is localhost, but it will only work on the machine that is running Terraform. 
+        # It works for logging into the AWS if I use 0.0.0.0/0 instead, as I have tested.
+    }
+
+# port 3000 rule
+    ingress {
+        from_port = 3000
+        to_port = 3000
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+# allow port 80 from all
+    ingress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+
 
 # aws_access_key = "This is not to be hardcoded"
 # aws_secret_key = "This is not to be hardcoded"
 # aws profile = "This is not to be hardcoded"
-
-# name of the service/instance
-# tag the service/instance
 
