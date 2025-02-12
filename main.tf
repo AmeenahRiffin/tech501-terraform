@@ -2,34 +2,34 @@
 # where to create it - provide cloud name
 provider "aws" {
 # what region to use (where to create these resources)
-    region = "eu-west-1" # we're setting this to ireland
+    region = var.region # we're setting this to ireland
 }
 # which service to create/resources
 resource "aws_instance" "app_instance" {
 # which AMI ID
-    ami = "ami-0c1c30571d2dae5c9"
+    ami = var.ami_id
 
 # which type of instance
-    instance_type = "t3.micro"
+    instance_type = var.instance_type
 
 # that we want a public ip
     associate_public_ip_address = true
 
 # name the service/instance
     tags = {
-        Name = "tech501-ameenah-terraform-app"
+        Name = var.instance_name
     }
 
 # use the security group
     vpc_security_group_ids = [aws_security_group.tech501-ameenah-tf-allow-port-22-3000-80.id]
 
 # which key to use
-    key_name = "ameenah-aws-key"
+    key_name = var.key_name
 }
 
 ## Adds the security group as per the requirements i'm naming this appropriately,
 resource "aws_security_group" "tech501-ameenah-tf-allow-port-22-3000-80" {
-    name = "tech501-ameenah-tf-allow-port-22-3000-80"
+    name = var.security_group_name
     description = "Security group allowing ports 22, 3000, and 80"
 
 # allow port 22 from localhost
@@ -37,7 +37,7 @@ resource "aws_security_group" "tech501-ameenah-tf-allow-port-22-3000-80" {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = ["127.0.0.1/32"] # This is localhost, but it will only work on the machine that is running Terraform. 
+        cidr_blocks = var.port_22_cidr # This is localhost, but it will only work on the machine that is running Terraform. 
         # It works for logging into the AWS if I use 0.0.0.0/0 instead, as I have tested.
     }
 
@@ -46,7 +46,7 @@ resource "aws_security_group" "tech501-ameenah-tf-allow-port-22-3000-80" {
         from_port = 3000
         to_port = 3000
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = var.port_3000_cidr
     }
 
 # allow port 80 from all
@@ -54,7 +54,7 @@ resource "aws_security_group" "tech501-ameenah-tf-allow-port-22-3000-80" {
         from_port = 80
         to_port = 80
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = var.port_80_cidr
     }
 }
 
